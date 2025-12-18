@@ -4,6 +4,7 @@ const { Server } = require('socket.io');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
+const jwt = require('jsonwebtoken');
 const connectDB = require('./src/config/db');
 const authRoutes = require('./src/routes/auth.routes');
 const taskRoutes = require('./src/routes/task.routes');
@@ -15,8 +16,13 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      return callback(null, true);
+    },
     credentials: true,
+    methods: ['GET', 'POST'],
   },
 });
 
@@ -25,10 +31,21 @@ const userSockets = new Map();
 io.on('connection', (socket) => {
   console.log('a user connected');
 
-  // Get userId from authentication data
-  const userId = socket.handshake.auth.userId;
+  // Get userId and token from authentication data
+  const { userId, token } = socket.handshake.auth;
 
-  if (userId) {
+  // Verify token if provided
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      if (userId && decoded.id === userId) {
+        userSockets.set(userId, socket.id);
+        console.log(`User ${userId} registered with socket ${socket.id}`);
+      }
+    } catch (error) {
+      console.error('Invalid token provided for socket connection');
+    }
+  } else if (userId) {
     userSockets.set(userId, socket.id);
     console.log(`User ${userId} registered with socket ${socket.id}`);
   }
@@ -52,8 +69,14 @@ app.use((req, res, next) => {
 });
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    return callback(null, true);
+  },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 app.use(cookieParser());

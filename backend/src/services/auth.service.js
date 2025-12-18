@@ -36,9 +36,16 @@ const loginUser = async (userData) => {
     throw new Error('Invalid credentials');
   }
 
+  console.log('JWT_SECRET exists:', !!process.env.JWT_SECRET);
+  console.log('JWT_SECRET value:', process.env.JWT_SECRET);
+
   const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
     expiresIn: '1h',
   });
+
+  console.log('User ID for token:', user._id);
+  console.log('Generated token:', token);
+  console.log('Generated token length:', token.length);
 
   return { user, token };
 };
