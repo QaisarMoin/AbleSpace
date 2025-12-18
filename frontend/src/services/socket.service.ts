@@ -11,6 +11,8 @@ export const connectSocket = (userId?: string) => {
         userId
       }
     });
+
+    // User is now automatically registered on connection using auth data
   }
   return socket;
 };

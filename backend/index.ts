@@ -4,9 +4,9 @@ import { Server } from 'socket.io';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
-import connectDB from './config/db';
-import authRoutes from './routes/auth.routes';
-import taskRoutes from './routes/task.routes';
+import connectDB from './src/config/db';
+import authRoutes from './src/routes/auth.routes';
+import taskRoutes from './src/routes/task.routes';
 
 dotenv.config();
 connectDB();
@@ -25,10 +25,13 @@ const userSockets = new Map<string, string>();
 io.on('connection', (socket) => {
   console.log('a user connected');
 
-  socket.on('registerUser', (userId) => {
+  // Get userId from authentication data
+  const userId = socket.handshake.auth.userId;
+
+  if (userId) {
     userSockets.set(userId, socket.id);
     console.log(`User ${userId} registered with socket ${socket.id}`);
-  });
+  }
 
   socket.on('disconnect', () => {
     console.log('user disconnected');
@@ -40,6 +43,16 @@ io.on('connection', (socket) => {
     }
   });
 });
+
+// Extend the Express Request type to include our custom properties
+declare global {
+  namespace Express {
+    interface Request {
+      io: Server;
+      userSockets: Map<string, string>;
+    }
+  }
+}
 
 app.use((req, res, next) => {
   req.io = io;
