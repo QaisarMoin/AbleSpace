@@ -20,7 +20,12 @@ const registerUser = async (userData) => {
 
   await user.save();
 
-  return user;
+  // Generate token for the newly registered user
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    expiresIn: '1h',
+  });
+
+  return { user, token };
 };
 
 const loginUser = async (userData) => {

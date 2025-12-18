@@ -5,10 +5,26 @@ const { User } = require('../models/user.model');
 const register = async (req, res) => {
   try {
     const validatedData = createUserSchema.parse(req.body);
-    const user = await registerUser(validatedData);
-    res.status(201).json({ message: 'User created successfully', user });
+    const { user, token } = await registerUser(validatedData);
+
+    // Set token in cookie
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'none'
+    });
+
+    res.status(201).json({ 
+      success: true,
+      message: 'User created successfully', 
+      user,
+      token
+    });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400).json({ 
+      success: false,
+      message: error.message 
+    });
   }
 };
 
