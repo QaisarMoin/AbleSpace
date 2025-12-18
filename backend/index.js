@@ -66,8 +66,10 @@ app.use((req, res, next) => {
 
 app.use(
   cors({
-    origin: ["http://localhost:3000"], // Allow specific origin
+    origin: ["http://localhost:3000", "https://able-space-nine.vercel.app"], // Allow specific origins
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
     allowedHeaders: [
       "Content-Type",
       "Authorization",
