@@ -1,6 +1,6 @@
 import { Response } from 'express';
-import { registerUser, loginUser } from '../services/auth.service';
-import { createUserSchema, loginUserSchema } from '../dto/user.dto';
+import { registerUser, loginUser, updateUser } from '../services/auth.service';
+import { createUserSchema, loginUserSchema, updateUserSchema } from '../dto/user.dto';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { User } from '../models/user.model';
 
@@ -51,5 +51,12 @@ export const getUsers = async (req: AuthRequest, res: Response) => {
   }
 };
 
-
-
+export const updateProfile = async (req: AuthRequest, res: Response) => {
+  try {
+    const validatedData = updateUserSchema.parse(req.body);
+    const user = await updateUser(req.userId!, validatedData);
+    res.json(user);
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+}

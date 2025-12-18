@@ -1,19 +1,18 @@
-import { ReactNode } from 'react';
+import React from 'react';
 
 interface ModalProps {
-  isOpen: boolean;
   onClose: () => void;
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
-const Modal = ({ isOpen, onClose, children }: ModalProps) => {
-  if (!isOpen) return null;
-
+const Modal: React.FC<ModalProps> = ({ onClose, children }) => {
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
-      <div className="bg-white p-5 rounded-lg max-w-lg w-full">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="bg-white rounded-lg p-8 w-full max-w-md">
         <div className="flex justify-end">
-          <button onClick={onClose} className="text-xl font-bold">&times;</button>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+            &times;
+          </button>
         </div>
         {children}
       </div>

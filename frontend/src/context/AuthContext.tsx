@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, ReactNode, useContext } from 'react';
-import api from '../services/api';
+import { getProfile, loginUser, logoutUser, registerUser, updateProfile as apiUpdateProfile, loginSchema, registerSchema, updateProfileSchema } from '../services/auth.service';
+import { z } from 'zod';
 
 interface User {
   _id: string;
@@ -7,9 +8,17 @@ interface User {
   email: string;
 }
 
+type LoginInput = z.infer<typeof loginSchema>;
+type RegisterInput = z.infer<typeof registerSchema>;
+type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
+
+
 interface AuthContextType {
   user: User | null;
-  setUser: (user: User | null) => void;
+  login: (data: LoginInput) => Promise<void>;
+  register: (data: RegisterInput) => Promise<void>;
+  logout: () => Promise<void>;
+  updateProfile: (data: UpdateProfileInput) => Promise<void>;
   isLoading: boolean;
 }
 
@@ -22,8 +31,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const checkUser = async () => {
       try {
-        const { data } = await api.get('/auth/profile');
-        setUser(data);
+        const user = await getProfile();
+        setUser(user);
       } catch (error) {
         setUser(null);
       } finally {
@@ -33,8 +42,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     checkUser();
   }, []);
 
+  const login = async (data: LoginInput) => {
+    const { user } = await loginUser(data);
+    setUser(user);
+  };
+
+  const register = async (data: RegisterInput) => {
+    const { user } = await registerUser(data);
+    setUser(user);
+  };
+
+  const logout = async () => {
+    await logoutUser();
+    setUser(null);
+  };
+
+  const updateProfile = async (data: UpdateProfileInput) => {
+    const user = await apiUpdateProfile(data);
+    setUser(user);
+  }
+
   return (
-    <AuthContext.Provider value={{ user, setUser, isLoading }}>
+    <AuthContext.Provider value={{ user, login, register, logout, updateProfile, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

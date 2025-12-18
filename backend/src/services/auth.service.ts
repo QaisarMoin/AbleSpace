@@ -1,11 +1,12 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/user.model';
-import { createUserSchema, loginUserSchema } from '../dto/user.dto';
+import { createUserSchema, loginUserSchema, updateUserSchema } from '../dto/user.dto';
 import { z } from 'zod';
 
 type CreateUserInput = z.infer<typeof createUserSchema>;
 type LoginUserInput = z.infer<typeof loginUserSchema>;
+type UpdateUserInput = z.infer<typeof updateUserSchema>;
 
 export const registerUser = async (userData: CreateUserInput) => {
   const { name, email, password } = userData;
@@ -47,3 +48,11 @@ export const loginUser = async (userData: LoginUserInput) => {
 
   return { user, token };
 };
+
+export const updateUser = async (userId: string, userData: UpdateUserInput) => {
+  const user = await User.findByIdAndUpdate(userId, userData, { new: true }).select('-password');
+  if (!user) {
+    throw new Error('User not found');
+  }
+  return user;
+}

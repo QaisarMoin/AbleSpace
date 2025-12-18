@@ -9,7 +9,7 @@ type UpdateTaskInput = z.infer<typeof updateTaskSchema>;
 export const createTask = async (data: CreateTaskInput, creatorId: string) => {
   const task = new Task({ ...data, creatorId });
   await task.save();
-  return task;
+  return await task.populate('creatorId assignedToId', 'name email');
 };
 
 export const getTasks = async (userId: string) => {
@@ -46,7 +46,7 @@ export const updateTask = async (id: string, data: UpdateTaskInput, userId: stri
   }
 
   await task.save();
-  return task;
+  return await task.populate('creatorId assignedToId', 'name email');
 };
 
 export const deleteTask = async (id: string, userId: string) => {

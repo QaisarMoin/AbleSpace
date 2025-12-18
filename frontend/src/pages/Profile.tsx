@@ -1,16 +1,40 @@
-import { useState } from 'react';
-import TaskList from '../components/TaskList';
-import CreateTaskForm from '../components/CreateTaskForm';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { useAuth } from '../context/AuthContext';
+import { updateProfileSchema } from '../services/auth.service';
 import { Link } from 'react-router-dom';
-import Modal from '../components/Modal';
+import { useEffect, useState } from 'react';
 import NotificationDisplay from '../components/NotificationDisplay';
 
-const Dashboard = () => {
-  const { user, logout } = useAuth();
-  const [isCreateTaskModalOpen, setIsCreateTaskModalOpen] = useState(false);
-  const [filter, setFilter] = useState('all');
+type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
+
+const Profile = () => {
+  const { user, updateProfile, logout } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<UpdateProfileInput>({
+    resolver: zodResolver(updateProfileSchema),
+  });
+
+  useEffect(() => {
+    if (user) {
+      reset({ name: user.name });
+    }
+  }, [user, reset]);
+
+  const onSubmit = async (data: UpdateProfileInput) => {
+    try {
+      await updateProfile(data);
+      alert('Profile updated successfully');
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <div className="flex h-screen bg-gray-100 font-sans">
@@ -48,15 +72,6 @@ const Dashboard = () => {
             </ul>
           </nav>
           <button
-            onClick={() => {
-              setIsCreateTaskModalOpen(true);
-              setIsSidebarOpen(false);
-            }}
-            className="w-full mt-8 px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700"
-          >
-            Create Task
-          </button>
-          <button
             onClick={logout}
             className="w-full mt-4 px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700"
           >
@@ -64,10 +79,7 @@ const Dashboard = () => {
           </button>
         </div>
       </div>
-
-      {/* Main Content */}
       <div className="flex-1 flex flex-col">
-        {/* Header */}
         <header className="flex items-center justify-between p-4 bg-white border-b">
           <div className="flex items-center">
             <button
@@ -89,7 +101,7 @@ const Dashboard = () => {
                 ></path>
               </svg>
             </button>
-            <h1 className="text-2xl font-bold ml-2 lg:ml-0">Dashboard</h1>
+            <h1 className="text-2xl font-bold ml-2 lg:ml-0">Profile</h1>
           </div>
           <div className="flex items-center">
             <div className="mr-4">Welcome, {user?.name}</div>
@@ -97,33 +109,54 @@ const Dashboard = () => {
           </div>
         </header>
         <main className="flex-1 p-6 overflow-y-auto">
-          <div className="mb-4 border-b border-gray-200">
-            <ul className="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500">
-              <li className="mr-2">
-                <button onClick={() => setFilter('all')} className={`inline-block p-4 rounded-t-lg border-b-2 ${filter === 'all' ? 'text-blue-600 border-blue-600' : 'border-transparent hover:text-gray-600 hover:border-gray-300'}`}>All Tasks</button>
-              </li>
-              <li className="mr-2">
-                <button onClick={() => setFilter('my_tasks')} className={`inline-block p-4 rounded-t-lg border-b-2 ${filter === 'my_tasks' ? 'text-blue-600 border-blue-600' : 'border-transparent hover:text-gray-600 hover:border-gray-300'}`}>My Tasks</button>
-              </li>
-              <li className="mr-2">
-                <button onClick={() => setFilter('created_by_me')} className={`inline-block p-4 rounded-t-lg border-b-2 ${filter === 'created_by_me' ? 'text-blue-600 border-blue-600' : 'border-transparent hover:text-gray-600 hover:border-gray-300'}`}>Created by Me</button>
-              </li>
-              <li>
-                <button onClick={() => setFilter('overdue')} className={`inline-block p-4 rounded-t-lg border-b-2 ${filter === 'overdue' ? 'text-blue-600 border-blue-600' : 'border-transparent hover:text-gray-600 hover:border-gray-300'}`}>Overdue</button>
-              </li>
-            </ul>
+          <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              <div>
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Name
+                </label>
+                <input
+                  id="name"
+                  type="text"
+                  {...register('name')}
+                  className="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                />
+                {errors.name && (
+                  <p className="mt-2 text-sm text-red-600">
+                    {errors.name.message}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Email
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  disabled
+                  value={user?.email || ''}
+                  className="block w-full px-3 py-2 mt-1 bg-gray-100 border border-gray-300 rounded-md shadow-sm sm:text-sm"
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full px-4 py-2 text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                Update Profile
+              </button>
+            </form>
           </div>
-          <TaskList filter={filter} />
         </main>
       </div>
-
-      {isCreateTaskModalOpen && (
-        <Modal onClose={() => setIsCreateTaskModalOpen(false)}>
-          <CreateTaskForm onClose={() => setIsCreateTaskModalOpen(false)} />
-        </Modal>
-      )}
     </div>
   );
 };
 
-export default Dashboard;
+export default Profile;
