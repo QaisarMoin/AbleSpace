@@ -1,7 +1,7 @@
 import { createContext, useState, useEffect, ReactNode, useContext } from 'react';
 import { getTasks } from '../services/task.service';
 import { useAuth } from '../context/AuthContext';
-import { io, Socket } from 'socket.io-client';
+import { io } from 'socket.io-client';
 
 interface Task {
   _id: string;

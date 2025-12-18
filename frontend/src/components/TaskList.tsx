@@ -128,7 +128,7 @@ const TaskList = ({ filter }: { filter: string }) => {
               <label className="text-sm font-medium text-gray-700">Status:</label>
               <select
                 value={task.status}
-                onChange={(e) => handleStatusChange(task._id, e.target.value)}
+                onChange={(e) => handleStatusChange(task._id, e.target.value as "To Do" | "In Progress" | "Review" | "Completed")}
                 className="ml-2 p-1 border rounded"
                 disabled={user?._id !== task.creatorId._id && user?._id !== task.assignedToId._id}
               >
