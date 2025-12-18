@@ -21,15 +21,36 @@ type LoginInput = z.infer<typeof loginSchema>;
 type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 
 export const registerUser = async (data: RegisterInput) => {
-  const response = await api.post('/auth/register', data);
-  return response.data;
+  try {
+    const response = await api.post('/auth/register', data);
+    console.log('Register API response:', response);
+    console.log('Response status:', response.status);
+    console.log('Response headers:', response.headers);
+    console.log('Response data:', response.data);
+    return response; // Return the full response instead of just response.data
+  } catch (error) {
+    console.error('Register service error:', error);
+    if (error.response) {
+      console.error('Error response data:', error.response.data);
+    }
+    throw error;
+  }
 };
 
 export const loginUser = async (data: LoginInput) => {
-  const response = await api.post('/auth/login', data);
-  console.log('Login API response:', response);
-  console.log('Response data:', response.data);
-  return response.data;
+  console.log('Login service data:', data);
+  try {
+    const response = await api.post('/auth/login', data);
+    console.log('Login API response:', response);
+    console.log('Response data:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Login service error:', error);
+    if (error.response) {
+      console.error('Error response data:', error.response.data);
+    }
+    throw error;
+  }
 };
 
 export const logoutUser = async () => {

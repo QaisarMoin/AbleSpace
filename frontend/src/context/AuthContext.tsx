@@ -29,58 +29,77 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const checkUser = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setUser(null);
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        const user = await getProfile();
-        setUser(user);
-      } catch (error) {
-        localStorage.removeItem('token');
-        setUser(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    checkUser();
+    const token = localStorage.getItem('token');
+    if (token) {
+      setUser(JSON.parse(localStorage.getItem('user') || 'null'));
+    }
+    setIsLoading(false);
   }, []);
 
   const login = async (data: LoginInput) => {
+    console.log('AuthContext login data:', data);
     try {
       const response = await loginUser(data);
       console.log('Login response:', response);
+      console.log('Response structure:', JSON.stringify(response, null, 2));
 
-      // Check if response has token directly or in data property
-      const token = response.token || response.data?.token;
-      const user = response.user || response.data?.user;
+      // Handle both direct response and axios wrapped response
+      const responseData = response.data || response;
+      const { user, token } = responseData;
 
       if (user && token) {
-        console.log('Storing token:', token);
         localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
         setUser(user);
       } else {
-        console.error('No token or user found in response');
+        console.error('No user or token found in response');
+        console.error('Response data:', responseData);
         throw new Error('Invalid login response');
       }
     } catch (error) {
       console.error('Login error:', error);
+      if (error.response) {
+        console.error('Error response:', error.response.data);
+      }
       throw error;
     }
   };
 
   const register = async (data: RegisterInput) => {
-    const { user } = await registerUser(data);
-    setUser(user);
+    try {
+      const response = await registerUser(data);
+      console.log('Full axios response:', response);
+      console.log('Response data:', response.data);
+      console.log('Response structure:', JSON.stringify(response, null, 2));
+
+      // Get the actual response data
+      const responseData = response.data;
+      console.log('Parsed response data:', responseData);
+
+      const user = responseData.user;
+
+      console.log('Extracted user:', user);
+
+      if (user) {
+        setUser(user);
+      } else {
+        console.error('No user found in response');
+        console.error('Response data:', responseData);
+        throw new Error('Invalid register response');
+      }
+    } catch (error) {
+      console.error('Register error:', error);
+      if (error.response) {
+        console.error('Error response:', error.response.data);
+      }
+      throw error;
+    }
   };
 
   const logout = async () => {
     await logoutUser();
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     setUser(null);
   };
 

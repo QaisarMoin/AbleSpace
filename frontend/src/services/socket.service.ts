@@ -1,17 +1,16 @@
-
-import { io, Socket } from 'socket.io-client';
+import { io, Socket } from "socket.io-client";
 
 let socket: Socket | null = null;
 
 export const connectSocket = (userId?: string) => {
   if (!socket) {
-    const token = localStorage.getItem('token');
-    socket = io('https://ablespace-xyiu.onrender.com', {
+    const token = localStorage.getItem("token");
+    socket = io("https://ablespace-xyiu.onrender.com", {
       withCredentials: true,
       auth: {
         userId,
-        token
-      }
+        token,
+      },
     });
 
     // User is now automatically registered on connection using auth data
@@ -35,6 +34,6 @@ export const getSocket = (userId?: string) => {
 
 export const listenForNotifications = (callback: (message: string) => void) => {
   const socket = getSocket();
-  socket.on('notification', callback);
-  return () => socket.off('notification', callback);
+  socket.on("notification", callback);
+  return () => socket.off("notification", callback);
 };

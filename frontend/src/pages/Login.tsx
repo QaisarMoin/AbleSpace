@@ -19,11 +19,12 @@ const Login = () => {
   });
 
   const onSubmit = async (data: LoginInput) => {
+    console.log('Login form data:', data);
     try {
       await login(data);
       navigate('/dashboard');
     } catch (error) {
-      console.error(error);
+      console.error('Login form error:', error);
     }
   };
 

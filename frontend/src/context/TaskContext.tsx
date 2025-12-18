@@ -1,15 +1,21 @@
-import { createContext, useState, useEffect, ReactNode, useContext } from 'react';
-import { getTasks } from '../services/task.service';
-import { useAuth } from '../context/AuthContext';
-import { io } from 'socket.io-client';
+import {
+  createContext,
+  useState,
+  useEffect,
+  ReactNode,
+  useContext,
+} from "react";
+import { getTasks } from "../services/task.service";
+import { useAuth } from "../context/AuthContext";
+import { io } from "socket.io-client";
 
 interface Task {
   _id: string;
   title: string;
   description: string;
   dueDate: string;
-  priority: 'Low' | 'Medium' | 'High' | 'Urgent';
-  status: 'To Do' | 'In Progress' | 'Review' | 'Completed';
+  priority: "Low" | "Medium" | "High" | "Urgent";
+  status: "To Do" | "In Progress" | "Review" | "Completed";
   creatorId: {
     _id: string;
     name: string;
@@ -49,21 +55,21 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (user) {
-      const token = localStorage.getItem('token');
-      const socket = io('https://ablespace-xyiu.onrender.com', {
+      const token = localStorage.getItem("token");
+      const socket = io("https://ablespace-xyiu.onrender.com", {
         auth: {
           userId: user._id,
-          token
-        }
+          token,
+        },
       });
 
-      socket.emit('registerUser', user._id);
+      socket.emit("registerUser", user._id);
 
-      socket.on('task:created', () => fetchTasks());
-      socket.on('task:updated', () => fetchTasks());
-      socket.on('task:deleted', () => fetchTasks());
+      socket.on("task:created", () => fetchTasks());
+      socket.on("task:updated", () => fetchTasks());
+      socket.on("task:deleted", () => fetchTasks());
 
-      socket.on('notification', (message: string) => {
+      socket.on("notification", (message: string) => {
         alert(message);
       });
 
@@ -95,7 +101,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
 export const useTasks = () => {
   const context = useContext(TaskContext);
   if (context === undefined) {
-    throw new Error('useTasks must be used within a TaskProvider');
+    throw new Error("useTasks must be used within a TaskProvider");
   }
   return context;
 };

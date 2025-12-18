@@ -114,23 +114,23 @@ const TaskList = ({ filter }: { filter: string }) => {
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredTasks.map((task) => (
+        {filteredTasks.map((task) => task ? (
           <div
-            key={task._id}
+            key={task?._id || 'task-' + Math.random()}
             className="p-4 border-l-8 rounded-lg shadow-lg bg-white"
-            style={{ borderLeftColor: getPriorityColor(task.priority) }}
+            style={{ borderLeftColor: getPriorityColor(task?.priority || "Low") }}
           >
-            <h3 className="text-lg font-bold">{task.title}</h3>
-            <p className="text-gray-600">{task.description}</p>
-            <p className="text-sm text-gray-500">Due: {new Date(task.dueDate).toLocaleDateString()}</p>
-            <p className="text-sm font-semibold" style={{ color: getPriorityColor(task.priority) }}>Priority: {task.priority}</p>
+            <h3 className="text-lg font-bold">{task?.title || "Untitled Task"}</h3>
+            <p className="text-gray-600">{task?.description || "No description"}</p>
+            <p className="text-sm text-gray-500">Due: {task?.dueDate ? new Date(task.dueDate).toLocaleDateString() : "No due date"}</p>
+            <p className="text-sm font-semibold" style={{ color: getPriorityColor(task?.priority || "Low") }}>Priority: {task?.priority || "Low"}</p>
             <div>
               <label className="text-sm font-medium text-gray-700">Status:</label>
               <select
-                value={task.status}
-                onChange={(e) => handleStatusChange(task._id, e.target.value as "To Do" | "In Progress" | "Review" | "Completed")}
+                value={task?.status || "To Do"}
+                onChange={(e) => task?._id && handleStatusChange(task._id, e.target.value as "To Do" | "In Progress" | "Review" | "Completed")}
                 className="ml-2 p-1 border rounded"
-                disabled={user?._id !== task.creatorId._id && user?._id !== task.assignedToId._id}
+                disabled={user?._id !== task.creatorId?._id && user?._id !== task.assignedToId?._id}
               >
                 <option value="To Do">To Do</option>
                 <option value="In Progress">In Progress</option>
@@ -138,16 +138,16 @@ const TaskList = ({ filter }: { filter: string }) => {
                 <option value="Completed">Completed</option>
               </select>
             </div>
-            <p className="text-sm text-gray-500">Created by: {task.creatorId.name}</p>
-            <p className="text-sm text-gray-500">Assigned to: {task.assignedToId.name}</p>
-            {user?._id === task.creatorId._id && (
+            <p className="text-sm text-gray-500">Created by: {task.creatorId?.name || "Unknown"}</p>
+            <p className="text-sm text-gray-500">Assigned to: {task.assignedToId?.name || "Unassigned"}</p>
+            {user?._id === task.creatorId?._id && (
               <div className="flex justify-end mt-2">
-                <button onClick={() => setEditingTask(task)} className="px-4 py-2 mr-2 text-white bg-blue-600 rounded">Edit</button>
-                <button onClick={() => handleDelete(task._id)} className="px-4 py-2 text-white bg-red-600 rounded">Delete</button>
+                <button onClick={() => task && setEditingTask(task)} className="px-4 py-2 mr-2 text-white bg-blue-600 rounded">Edit</button>
+                <button onClick={() => task?._id && handleDelete(task._id)} className="px-4 py-2 text-white bg-red-600 rounded">Delete</button>
               </div>
             )}
           </div>
-        ))}
+        ) : null)}
       </div>
       {editingTask && (
         <Modal onClose={() => setEditingTask(null)}>

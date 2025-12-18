@@ -7,12 +7,7 @@ const register = async (req, res) => {
     const validatedData = createUserSchema.parse(req.body);
     const { user, token } = await registerUser(validatedData);
 
-    // Set token in cookie
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'none'
-    });
+    // Token will be sent in response body
 
     res.status(201).json({ 
       success: true,
@@ -30,7 +25,9 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   try {
+    console.log('Login request body:', req.body);
     const validatedData = loginUserSchema.parse(req.body);
+    console.log('Validated data:', validatedData);
     const { user, token } = await loginUser(validatedData);
     console.log('Generated token for user:', user._id);
     console.log('Token value:', token);
@@ -41,7 +38,7 @@ const login = async (req, res) => {
       sameSite: 'none'
     });
 
-    console.log('Cookie set with token');
+    // Token will be sent in response body
 
     // Create response object
     const responseObj = {
