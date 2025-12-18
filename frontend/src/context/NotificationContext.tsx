@@ -17,7 +17,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (user) {
       // Connect to socket when user is logged in
-      const socket = connectSocket(user._id);
+      connectSocket(user._id);
 
       // Listen for notifications
       const cleanup = listenForNotifications((message) => {

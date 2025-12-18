@@ -1,6 +1,6 @@
 import { useTasks } from '../context/TaskContext';
 import { useAuth } from '../context/AuthContext';
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { updateTask, deleteTask } from '../services/task.service';
 import Skeleton from './Skeleton';
 import UpdateTaskForm from './UpdateTaskForm';
@@ -63,7 +63,7 @@ const TaskList = ({ filter }: { filter: string }) => {
       return true;
     });
 
-  const handleStatusChange = async (id: string, status: string) => {
+  const handleStatusChange = async (id: string, status: "To Do" | "In Progress" | "Review" | "Completed") => {
     try {
       await updateTask({ id, status });
       await fetchTasks();

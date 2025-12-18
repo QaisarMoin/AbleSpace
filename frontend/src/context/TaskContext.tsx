@@ -1,6 +1,5 @@
 import { createContext, useState, useEffect, ReactNode, useContext } from 'react';
-import { getTasks, createTaskSchema, updateTaskSchema } from '../services/task.service';
-import { z } from 'zod';
+import { getTasks } from '../services/task.service';
 import { useAuth } from '../context/AuthContext';
 import { io, Socket } from 'socket.io-client';
 
@@ -23,9 +22,6 @@ interface Task {
   };
 }
 
-type CreateTaskInput = z.infer<typeof createTaskSchema>;
-type UpdateTaskInput = z.infer<typeof updateTaskSchema>;
-
 interface TaskContextType {
   tasks: Task[];
   isLoading: boolean;
@@ -38,7 +34,6 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
-  const [socket, setSocket] = useState<Socket | null>(null);
 
   const fetchTasks = async () => {
     try {
@@ -54,21 +49,26 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (user) {
-      const newSocket = io('http://localhost:4000');
-      setSocket(newSocket);
+      const token = localStorage.getItem('token');
+      const socket = io('https://ablespace-xyiu.onrender.com', {
+        auth: {
+          userId: user._id,
+          token
+        }
+      });
 
-      newSocket.emit('registerUser', user._id);
+      socket.emit('registerUser', user._id);
 
-      newSocket.on('task:created', () => fetchTasks());
-      newSocket.on('task:updated', () => fetchTasks());
-      newSocket.on('task:deleted', () => fetchTasks());
+      socket.on('task:created', () => fetchTasks());
+      socket.on('task:updated', () => fetchTasks());
+      socket.on('task:deleted', () => fetchTasks());
 
-      newSocket.on('notification', (message: string) => {
+      socket.on('notification', (message: string) => {
         alert(message);
       });
 
       return () => {
-        newSocket.disconnect();
+        socket.disconnect();
       };
     }
   }, [user]);

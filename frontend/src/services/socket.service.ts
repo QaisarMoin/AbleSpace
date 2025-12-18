@@ -5,10 +5,12 @@ let socket: Socket | null = null;
 
 export const connectSocket = (userId?: string) => {
   if (!socket) {
-    socket = io('http://localhost:4000', {
+    const token = localStorage.getItem('token');
+    socket = io('https://ablespace-xyiu.onrender.com', {
       withCredentials: true,
       auth: {
-        userId
+        userId,
+        token
       }
     });
 

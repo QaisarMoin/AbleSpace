@@ -3,7 +3,12 @@ import { io } from 'socket.io-client';
 import { useQueryClient } from 'react-query';
 import { useAuth } from '../context/AuthContext';
 
-const socket = io('http://localhost:4000');
+const token = localStorage.getItem('token');
+const socket = io('https://ablespace-xyiu.onrender.com', {
+  auth: {
+    token
+  }
+});
 
 export const useSocket = () => {
   const queryClient = useQueryClient();

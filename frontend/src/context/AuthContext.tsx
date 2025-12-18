@@ -30,10 +30,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const checkUser = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setUser(null);
+        setIsLoading(false);
+        return;
+      }
+
       try {
         const user = await getProfile();
         setUser(user);
       } catch (error) {
+        localStorage.removeItem('token');
         setUser(null);
       } finally {
         setIsLoading(false);
@@ -43,8 +51,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = async (data: LoginInput) => {
-    const { user } = await loginUser(data);
-    setUser(user);
+    try {
+      const response = await loginUser(data);
+      console.log('Login response:', response);
+
+      // Check if response has token directly or in data property
+      const token = response.token || response.data?.token;
+      const user = response.user || response.data?.user;
+
+      if (user && token) {
+        console.log('Storing token:', token);
+        localStorage.setItem('token', token);
+        setUser(user);
+      } else {
+        console.error('No token or user found in response');
+        throw new Error('Invalid login response');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
+    }
   };
 
   const register = async (data: RegisterInput) => {
@@ -54,6 +80,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     await logoutUser();
+    localStorage.removeItem('token');
     setUser(null);
   };
 
