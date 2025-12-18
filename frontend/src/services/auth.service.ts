@@ -28,7 +28,7 @@ export const registerUser = async (data: RegisterInput) => {
     console.log('Response headers:', response.headers);
     console.log('Response data:', response.data);
     return response; // Return the full response instead of just response.data
-  } catch (error) {
+  } catch (error: any) {
     console.error('Register service error:', error);
     if (error.response) {
       console.error('Error response data:', error.response.data);
@@ -44,7 +44,7 @@ export const loginUser = async (data: LoginInput) => {
     console.log('Login API response:', response);
     console.log('Response data:', response.data);
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Login service error:', error);
     if (error.response) {
       console.error('Error response data:', error.response.data);

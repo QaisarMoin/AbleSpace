@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, ReactNode, useContext } from 'react';
-import { getProfile, loginUser, logoutUser, registerUser, updateProfile as apiUpdateProfile, loginSchema, registerSchema, updateProfileSchema } from '../services/auth.service';
+import { loginUser, logoutUser, registerUser, updateProfile as apiUpdateProfile, loginSchema, registerSchema, updateProfileSchema } from '../services/auth.service';
 import { z } from 'zod';
 
 interface User {
@@ -56,7 +56,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         console.error('Response data:', responseData);
         throw new Error('Invalid login response');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login error:', error);
       if (error.response) {
         console.error('Error response:', error.response.data);
@@ -87,7 +87,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         console.error('Response data:', responseData);
         throw new Error('Invalid register response');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Register error:', error);
       if (error.response) {
         console.error('Error response:', error.response.data);
