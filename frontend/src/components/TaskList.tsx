@@ -66,7 +66,8 @@ const TaskList = ({ filter }: { filter: string }) => {
   const handleStatusChange = async (id: string, status: "To Do" | "In Progress" | "Review" | "Completed") => {
     try {
       await updateTask({ id, status });
-      await fetchTasks();
+      // Removed fetchTasks() call to avoid page reload
+      // Socket.io will handle real-time updates
     } catch (error) {
       console.error(error);
     }
@@ -75,7 +76,8 @@ const TaskList = ({ filter }: { filter: string }) => {
   const handleDelete = async (id: string) => {
     try {
       await deleteTask(id);
-      await fetchTasks();
+      // Removed fetchTasks() call to avoid page reload
+      // Socket.io will handle real-time updates
     } catch (error) {
       console.error(error);
     }

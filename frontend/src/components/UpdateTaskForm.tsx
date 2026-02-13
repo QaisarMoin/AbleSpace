@@ -52,7 +52,8 @@ const UpdateTaskForm = ({ task, onUpdate }: UpdateTaskFormProps) => {
   const onSubmit = async (data: UpdateTaskInput) => {
     try {
       await updateTask({ id: task._id, ...data });
-      await fetchTasks();
+      // Removed fetchTasks() call to avoid page reload
+      // Socket.io will handle real-time updates
 
       // Show alert message when task is assigned to someone (only if assignment changed)
       if (task.assignedToId._id !== data.assignedToId) {

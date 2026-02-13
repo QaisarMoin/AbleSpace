@@ -46,7 +46,8 @@ const CreateTaskForm = ({ onClose }: CreateTaskFormProps) => {
   const onSubmit = async (data: CreateTaskInput) => {
     try {
       await createTask(data);
-      await fetchTasks();
+      // Removed fetchTasks() call to avoid page reload
+      // Socket.io will handle real-time updates
 
       // Show alert message when task is created and assigned
       const assignedUser = users.find(user => user._id === data.assignedToId);
