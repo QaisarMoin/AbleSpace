@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useTasks } from '../context/TaskContext';
+
 import { useAuth } from '../context/AuthContext';
 import { createTask, createTaskSchema } from '../services/task.service';
 import { getUsers } from '../services/auth.service';
@@ -19,7 +19,7 @@ interface CreateTaskFormProps {
 }
 
 const CreateTaskForm = ({ onClose }: CreateTaskFormProps) => {
-  const { fetchTasks } = useTasks();
+
   const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const {

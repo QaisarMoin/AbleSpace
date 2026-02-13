@@ -7,7 +7,7 @@ import UpdateTaskForm from './UpdateTaskForm';
 import Modal from './Modal';
 
 const TaskList = ({ filter }: { filter: string }) => {
-  const { tasks, isLoading, fetchTasks } = useTasks();
+  const { tasks, isLoading } = useTasks();
   const { user } = useAuth();
   const [filterStatus, setFilterStatus] = useState('');
   const [filterPriority, setFilterPriority] = useState('');
